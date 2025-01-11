@@ -1,0 +1,3 @@
+services:
+  IntelligentIntern\OpenAIBundle\Service\OpenAIService:
+    tags: ['ai.strategy']

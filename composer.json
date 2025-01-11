@@ -1,0 +1,22 @@
+{
+  "name": "intelligent-intern/openai-bundle",
+  "description": "Symfony bundle for OpenAI integration",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "IntelligentIntern\\OpenAIBundle\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.0",
+    "symfony/http-client": "^6.0",
+    "symfony/dependency-injection": "^6.0",
+    "symfony/framework-bundle": "^6.0"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0-dev"
+    }
+  }
+}
