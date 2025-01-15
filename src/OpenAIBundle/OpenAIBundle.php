@@ -2,9 +2,9 @@
 
 namespace IntelligentIntern\OpenAIBundle;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use IntelligentIntern\OpenAIBundle\DependencyInjection\Compiler\AIServiceCompilerPass;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class OpenAIBundle extends Bundle
 {

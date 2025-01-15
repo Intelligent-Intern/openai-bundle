@@ -2,31 +2,56 @@
 
 namespace IntelligentIntern\OpenAIBundle\Service;
 
-use App\Service\Api\Strategies\AIServiceInterface;
+use App\Interface\AIServiceInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use App\Service\VaultService;
 
 class OpenAIService implements AIServiceInterface
 {
-    private HttpClientInterface $httpClient;
     private string $apiKey;
 
-    public function __construct(HttpClientInterface $httpClient)
+    public function __construct(
+        private HttpClientInterface $httpClient,
+        private VaultService $vaultService,
+        private LoggerInterface $logger
+    ) {
+        $config = $this->vaultService->fetchSecret('secret/data/data/openai'); // Flexibel für das Bundle
+        $this->apiKey = $config['api_key'] ?? throw new \RuntimeException('API Key for OpenAI is not set in Vault.');
+    }
+
+    public function supports(string $provider): bool
     {
-        $this->httpClient = $httpClient;
-        $this->apiKey = $_ENV['OPENAI_API_KEY'] ?? throw new \RuntimeException('OPENAI_API_KEY is not set');
+        return strtolower($provider) === 'openai';
+    }
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    public function setVaultService(VaultService $vaultService): void
+    {
+        $this->vaultService = $vaultService;
     }
 
     public function generateEmbedding(string $input): array
     {
+        $this->logger->info('Generating embedding using OpenAI API.');
+
         $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/embeddings', [
             'headers' => [
                 'Authorization' => "Bearer {$this->apiKey}",
                 'Content-Type' => 'application/json',
             ],
-            'json' => ['model' => 'text-embedding-ada-002', 'input' => $input],
+            'json' => [
+                'input' => $input,
+                'model' => 'text-embedding-3-small',
+            ],
         ]);
 
         $data = $response->toArray();
-        return $data['data'][0]['embedding'] ?? throw new \RuntimeException('Failed to fetch embedding');
+
+        return $data['data'] ?? [];
     }
 }
