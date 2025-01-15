@@ -6,19 +6,20 @@ The `intelligent-intern/openai-bundle` integrates OpenAI with the [Intelligent I
 
 Install the bundle using Composer:
 
-``` bash
+~~~bash
 composer require intelligent-intern/openai-bundle
-``` 
+~~~
 
 ## Configuration
 
 Ensure the following secret is set in vault:
 
-``` env
-OPENAI_API_KEY=your_openai_api_key
-``` 
+~~~env
+secret/data/data/openai:
+  api_key: your_openai_api_key
+~~~
 
-and to use the bundle set AI_PROVIDER to "openai" 
+To use the bundle, ensure the `AI_PROVIDER` is set to `"openai"`.
 
 ## Usage
 
@@ -26,7 +27,7 @@ Once the bundle is installed and configured, the Core framework will dynamically
 
 The service will be available via the `AIServiceFactory`:
 
-``` php
+~~~php
 <?php
 
 namespace App\Controller;
@@ -60,8 +61,7 @@ class EmbeddingController extends AbstractController
         }
     }
 }
-
-``` 
+~~~
 
 ## Extensibility
 
@@ -69,7 +69,13 @@ This bundle is specifically designed to integrate with `intelligent-intern/core`
 
 If you'd like to add additional strategies, simply create a similar bundle that implements the `AIServiceInterface` and tag its service with `ai.strategy`.
 
-Also reaching out to jschultz@php.net to get a contribution guide might be a good idea. 
+For example:
+
+~~~yaml
+services:
+    Your\CustomBundle\Service\CustomAIService:
+        tags: ['ai.strategy']
+~~~
 
 ## License
 
