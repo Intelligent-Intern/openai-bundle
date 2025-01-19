@@ -4,6 +4,11 @@ namespace IntelligentIntern\OpenAIBundle\Service;
 
 use App\Interface\AIServiceInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Service\VaultService;
 
@@ -11,12 +16,19 @@ class OpenAIService implements AIServiceInterface
 {
     private string $apiKey;
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
     public function __construct(
-        private HttpClientInterface $httpClient,
-        private VaultService $vaultService,
-        private LoggerInterface $logger
+        private readonly HttpClientInterface $httpClient,
+        private VaultService                 $vaultService,
+        private LoggerInterface              $logger
     ) {
-        $config = $this->vaultService->fetchSecret('secret/data/data/openai'); // Flexibel für das Bundle
+        $config = $this->vaultService->fetchSecret('secret/data/data/openai');
         $this->apiKey = $config['api_key'] ?? throw new \RuntimeException('API Key for OpenAI is not set in Vault.');
     }
 
@@ -35,6 +47,13 @@ class OpenAIService implements AIServiceInterface
         $this->vaultService = $vaultService;
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
     public function generateEmbedding(string $input): array
     {
         $this->logger->info('Generating embedding using OpenAI API.');
