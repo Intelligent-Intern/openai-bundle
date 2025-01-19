@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true
+
+  IntelligentIntern\OpenAIBundle\Service\:
+    resource: '../src/Service/*'
+    public: true
+    tags:
+      - { name: 'ai.strategy' }
