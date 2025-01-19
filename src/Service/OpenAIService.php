@@ -1,6 +1,6 @@
 <?php
 
-namespace IntelligentIntern\Service;
+namespace IntelligentIntern\OpenAIBundle\Service;
 
 use App\Interface\AIServiceInterface;
 use App\Service\VaultService;

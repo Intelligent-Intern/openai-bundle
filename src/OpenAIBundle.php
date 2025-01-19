@@ -2,7 +2,7 @@
 
 namespace IntelligentIntern\OpenAIBundle;
 
-use IntelligentIntern\DependencyInjection\Compiler\AIServiceCompilerPass;
+use IntelligentIntern\OpenAIBundle\DependencyInjection\Compiler\AIServiceCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
