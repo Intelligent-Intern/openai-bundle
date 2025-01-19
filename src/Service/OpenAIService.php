@@ -40,16 +40,6 @@ class OpenAIService implements AIServiceInterface
         return strtolower($provider) === 'openai';
     }
 
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    public function setVaultService(VaultService $vaultService): void
-    {
-        $this->vaultService = $vaultService;
-    }
-
     /**
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
