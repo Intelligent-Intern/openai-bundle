@@ -1,6 +1,6 @@
 <?php
 
-namespace IntelligentIntern;
+namespace IntelligentIntern\OpenAIBundle;
 
 use IntelligentIntern\DependencyInjection\Compiler\AIServiceCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
