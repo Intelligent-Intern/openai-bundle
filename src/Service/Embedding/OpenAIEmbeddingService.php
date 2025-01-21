@@ -7,6 +7,7 @@ use App\Contract\LogServiceInterface;
 use App\Contract\RateLimiterInterface;
 use App\DTO\EmbeddingResult;
 use App\Service\VaultService;
+use App\Factory\LogServiceFactory;
 use OpenAI;
 use OpenAI\Client as OpenAIClient;
 use Throwable;
