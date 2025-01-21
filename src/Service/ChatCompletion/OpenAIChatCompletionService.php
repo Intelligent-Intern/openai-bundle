@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ChatCompletion;
+namespace IntelligentIntern\OpenAIBundle\Service\ChatCompletion;
 
 use App\Contract\ChatHistoryInterface;
 use App\Contract\ChatCompletionServiceInterface;
