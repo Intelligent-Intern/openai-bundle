@@ -42,10 +42,12 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
      */
     public function generateResponse(string $model, ChatHistoryInterface $chatHistory, array $options = []): ChatCompletionResult
     {
+        $modelConfig = $this->getModelConfig($model);
         $this->askPermission
-            ->addModel($model)
             ->addProvider('openai')
-            ->addChatHistory($chatHistory);
+            ->addChatHistory($chatHistory)
+            ->addModelConfig($modelConfig)
+            ->addModelName($model);
         $permissionRequest = $this->rateLimiter->acquirePermit($this->askPermission);
         if (!$permissionRequest->isGranted()) {
             throw new \RuntimeException('Permission to perform this request was denied.');
@@ -53,7 +55,6 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
         $this->logger->info('Rate limiter granted permission.', [
             'metadata' => $permissionRequest->getMetadata(),
         ]);
-        $modelConfig = $this->getModelConfig($model);
         $payload = array_merge([
             'model' => $modelConfig['deploymentId'],
             'messages' => $chatHistory->getMessages(),
