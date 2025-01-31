@@ -2,6 +2,7 @@
 
 namespace IntelligentIntern\OpenAIBundle\Service\ChatCompletion;
 
+use App\DTO\ModelConfigDTO;
 use App\Factory\LogServiceFactory;
 use App\Service\VaultService;
 use App\Contract\ChatHistoryInterface;
@@ -12,15 +13,26 @@ use App\DTO\ChatCompletionResult;
 use App\Contract\AskPermissionInterface;
 use OpenAI;
 use OpenAI\Client as OpenAIClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Throwable;
 
 class OpenAIChatCompletionService implements ChatCompletionServiceInterface
 {
     private string $apiKey;
-    private string $endpoint;
     private array $models;
     private LogServiceInterface $logger;
 
+    /**
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     */
     public function __construct(
         private readonly LogServiceFactory $logServiceFactory,
         private readonly RateLimiterInterface $rateLimiter,
@@ -30,7 +42,6 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
         $this->logger = $this->logServiceFactory->create();
         $config = $this->vaultService->fetchSecret('secret/data/data/openai');
         $this->apiKey = $config['api_key'] ?? throw new \RuntimeException('API Key for OpenAI is not set in Vault.');
-        $this->endpoint = $config['api_endpoint'] ?? throw new \RuntimeException('API Endpoint for OpenAI is not set in Vault.');
         $this->models = $config['models'] ?? throw new \RuntimeException('Model configurations are not set in Vault.');
     }
 
@@ -48,8 +59,8 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
         $this->askPermission
             ->addProvider('openai')
             ->addChatHistory($chatHistory)
-            ->addModelConfig($modelConfig)
-            ->addModelName($model);
+            ->addModelConfig($modelConfig);
+
         $permissionRequest = $this->rateLimiter->acquirePermit($this->askPermission);
         if (!$permissionRequest->isGranted()) {
             throw new \RuntimeException('Permission to perform this request was denied.');
@@ -102,12 +113,20 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
         }
     }
 
-    private function getModelConfig(string $model): array
+    private function getModelConfig(string $model): ModelConfigDTO
     {
         if (!isset($this->models[$model])) {
             throw new \RuntimeException("Model configuration for '$model' not found.");
         }
 
-        return $this->models[$model];
+        $config = $this->models[$model];
+
+        return new ModelConfigDTO(
+            deploymentId: $config['deploymentId'] ?? throw new \RuntimeException("Missing 'deploymentId' for model '$model'."),
+            apiVersion: $config['apiVersion'] ?? throw new \RuntimeException("Missing 'apiVersion' for model '$model'."),
+            rpm: $config['rpm'] ?? throw new \RuntimeException("Missing 'rpm' for model '$model'."),
+            tpm: $config['tpm'] ?? throw new \RuntimeException("Missing 'tpm' for model '$model'."),
+            modelName: $model
+        );
     }
 }
