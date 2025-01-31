@@ -41,8 +41,12 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
     ) {
         $this->logger = $this->logServiceFactory->create();
         $config = $this->vaultService->fetchSecret('secret/data/data/openai');
+
+        $models = $config['models'] ?? throw new \RuntimeException('Model configurations missing.');
+        $models_std_class = json_decode($models);
+        $this->models = json_decode(json_encode($models_std_class), true);
+
         $this->apiKey = $config['api_key'] ?? throw new \RuntimeException('API Key for OpenAI is not set in Vault.');
-        $this->models = $config['models'] ?? throw new \RuntimeException('Model configurations are not set in Vault.');
     }
 
     public function supports(string $provider): bool
