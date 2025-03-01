@@ -2,9 +2,9 @@
 
 namespace IntelligentIntern\OpenAIBundle;
 
+use App\DependencyInjection\ChatCompletion\ChatCompletionStrategyCompilerPass;
 use App\DependencyInjection\Compiler\AIStrategyCompilerPass;
-use App\DependencyInjection\Compiler\EmbeddingStrategyCompilerPass;
-use App\DependencyInjection\Compiler\ChatCompletionStrategyCompilerPass;
+use App\DependencyInjection\Embedding\EmbeddingStrategyCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;

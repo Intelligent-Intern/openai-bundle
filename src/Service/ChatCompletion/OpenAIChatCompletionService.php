@@ -60,27 +60,40 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
     public function generateResponse(string $model, ChatHistoryInterface $chatHistory, array $options = []): ChatCompletionResult
     {
         $modelConfig = $this->getModelConfig($model);
-        $this->askPermission
-            ->addProvider('openai')
-            ->addChatHistory($chatHistory)
-            ->addModelConfig($modelConfig);
 
-        $permissionRequest = $this->rateLimiter->acquirePermit($this->askPermission);
-        if (!$permissionRequest->isGranted()) {
-            throw new \RuntimeException('Permission to perform this request was denied.');
+//        $this->askPermission
+//            ->addProvider('openai')
+//            ->addChatHistory($chatHistory)
+//            ->addModelConfig($modelConfig);
+//
+//        $permissionRequest = $this->rateLimiter->acquirePermit($this->askPermission);
+//
+//        if (!$permissionRequest->isGranted()) {
+//            throw new \RuntimeException('Permission to perform this request was denied.');
+//        }
+
+//        $this->logger->info('Rate limiter granted permission.', [
+//            'metadata' => $permissionRequest->getMetadata(),
+//        ]);
+
+        $messages = [];
+        $messageEntries = $chatHistory->getChatMessageEntries();
+        foreach($messageEntries as $messageEntry) {
+            $messages[] = ['content' => $messageEntry->getMessage(), 'role' => $messageEntry->getRole()];
         }
-        $this->logger->info('Rate limiter granted permission.', [
-            'metadata' => $permissionRequest->getMetadata(),
-        ]);
+
         $payload = array_merge([
-            'model' => $modelConfig['deploymentId'],
-            'messages' => $chatHistory->getMessages(),
+            'model' => $modelConfig->getDeploymentId(),
+            'messages' => $messages,
             'temperature' => $options['temperature'] ?? 0.7,
             'max_tokens' => $options['max_tokens'] ?? 512,
             'top_p' => $options['top_p'] ?? 1.0,
             'n' => $options['n'] ?? 1,
         ], $options);
-        $tokensExpected = $permissionRequest->getMetadata()['tokensExpected'] ?? 'unknown';
+
+
+//        $tokensExpected = $permissionRequest->getMetadata()['tokensExpected'] ?? 'unknown';
+        $tokensExpected = 1000;
         $this->logger->info('Sending chat request to OpenAI.', [
             'payload' => $payload,
             'tokensExpected' => $tokensExpected,
@@ -103,7 +116,7 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
 
             return new ChatCompletionResult(
                 content: $response->choices[0]->message->content ?? throw new \RuntimeException('No content in response.'),
-                modelUsed: $modelConfig['deploymentId'],
+                modelUsed: $modelConfig->getDeploymentId(),
                 requestId: $response->id ?? 'unknown',
                 rawChoices: $response->choices
             );
@@ -122,15 +135,13 @@ class OpenAIChatCompletionService implements ChatCompletionServiceInterface
         if (!isset($this->models[$model])) {
             throw new \RuntimeException("Model configuration for '$model' not found.");
         }
-
         $config = $this->models[$model];
-
         return new ModelConfigDTO(
             deploymentId: $config['deploymentId'] ?? throw new \RuntimeException("Missing 'deploymentId' for model '$model'."),
             apiVersion: $config['apiVersion'] ?? throw new \RuntimeException("Missing 'apiVersion' for model '$model'."),
             rpm: $config['rpm'] ?? throw new \RuntimeException("Missing 'rpm' for model '$model'."),
             tpm: $config['tpm'] ?? throw new \RuntimeException("Missing 'tpm' for model '$model'."),
-            modelName: $model
+            modelName: $config['deploymentId']
         );
     }
 }
