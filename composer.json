@@ -1,6 +1,7 @@
 {
   "name": "intelligent-intern/openai-bundle",
   "description": "Symfony bundle for OpenAI integration",
+  "version": "1.0.0",
   "type": "intelligent-intern-bundle",
   "license": "MIT",
   "autoload": {
